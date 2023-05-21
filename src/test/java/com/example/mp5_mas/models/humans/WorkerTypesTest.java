@@ -4,6 +4,7 @@ import com.example.mp5_mas.repository.ManagerRepository;
 import com.example.mp5_mas.repository.MechanicRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import jakarta.validation.ConstraintViolationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,7 @@ import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -79,5 +81,180 @@ class WorkerTypesTest {
         entityManager.flush();
         assertEquals(2, managerRepository.count());
         assertEquals(2, mechanicRepository.count());
+    }
+
+    @Test
+    public void testInvalidMechanic() {
+        Mechanic invalidMechanic = Mechanic.builder()
+                .firstName("Water")
+                .lastName("")
+                .dateOfBirth(LocalDate.of(2000, 6, 10))
+                .salary(1500)
+                .specialiationList(new HashSet<>(Collections.singleton("Fixing stuff")))
+                .build();
+
+        mechanicRepository.save(invalidMechanic);
+        assertThrows(ConstraintViolationException.class, () -> entityManager.flush());
+    }
+
+    @Test
+    public void testInvalidManager() {
+        Manager invalidManager = Manager.builder()
+                .firstName("")
+                .lastName("Malone")
+                .dateOfBirth(null)
+                .salary(2500)
+                .bonus(400)
+                .build();
+
+        managerRepository.save(invalidManager);
+        assertThrows(ConstraintViolationException.class, () -> entityManager.flush());
+    }
+
+
+
+    // tests for Mechanic
+    @Test
+    public void testMechanicFindByFirstName() {
+        managerRepository.saveAll(Arrays.asList(manager1, manager2));
+        mechanicRepository.saveAll(Arrays.asList(mechanic1, mechanic2));
+        entityManager.flush();
+
+        List<Mechanic> foundHopefully = mechanicRepository.findByFirstName("Water");
+        assertEquals(1, foundHopefully.size());
+        assertEquals("Water", foundHopefully.get(0).getFirstName());
+    }
+
+    @Test
+    public void testMechanicFindByLastName() {
+        managerRepository.saveAll(Arrays.asList(manager1, manager2));
+        mechanicRepository.saveAll(Arrays.asList(mechanic1, mechanic2));
+        entityManager.flush();
+
+        List<Mechanic> foundHopefully = mechanicRepository.findByLastName("Malone");
+        assertEquals(2, foundHopefully.size());
+    }
+
+    @Test
+    public void testMechanicFindByFirstNameAndLastName() {
+        managerRepository.saveAll(Arrays.asList(manager1, manager2));
+        mechanicRepository.saveAll(Arrays.asList(mechanic1, mechanic2));
+        entityManager.flush();
+
+        List<Mechanic> foundHopefully = mechanicRepository.findByFirstNameAndLastName("Water", "Malone");
+        assertEquals(1, foundHopefully.size());
+        assertEquals("Water", foundHopefully.get(0).getFirstName());
+        assertEquals("Malone", foundHopefully.get(0).getLastName());
+    }
+
+    @Test
+    public void testMechanicFindByFirstNameAndSalary() {
+        managerRepository.saveAll(Arrays.asList(manager1, manager2));
+        mechanicRepository.saveAll(Arrays.asList(mechanic1, mechanic2));
+        entityManager.flush();
+
+        List<Mechanic> foundHopefully = mechanicRepository.findByFirstNameAndSalary("Reply", 2200);
+        assertEquals(1, foundHopefully.size());
+        assertEquals("Reply", foundHopefully.get(0).getFirstName());
+        assertEquals(2200, foundHopefully.get(0).getSalary());
+
+        foundHopefully = mechanicRepository.findByFirstNameAndSalary("Water", 3000);
+        assertEquals(0, foundHopefully.size());
+    }
+
+    @Test
+    public void testMechanicFindAllBySalaryBiggerThan() {
+        managerRepository.saveAll(Arrays.asList(manager1, manager2));
+        mechanicRepository.saveAll(Arrays.asList(mechanic1, mechanic2));
+        entityManager.flush();
+
+        List<Mechanic> foundHopefully = mechanicRepository.findAllBySalaryBiggerThan(2000);
+        assertEquals(1, foundHopefully.size());
+        assertTrue(foundHopefully.get(0).getSalary() > 2000);
+    }
+
+    @Test
+    public void testMechanicFindAllBySalarySmallerThan() {
+        managerRepository.saveAll(Arrays.asList(manager1, manager2));
+        mechanicRepository.saveAll(Arrays.asList(mechanic1, mechanic2));
+        entityManager.flush();
+
+        List<Mechanic> foundHopefully = mechanicRepository.findAllBySalarySmallerThan(2000);
+        assertEquals(1, foundHopefully.size());
+        assertTrue(foundHopefully.get(0).getSalary() < 2000);
+    }
+
+
+
+
+    // Test for Manager
+    @Test
+    public void testManagerFindByFirstName() {
+        managerRepository.saveAll(Arrays.asList(manager1, manager2));
+        mechanicRepository.saveAll(Arrays.asList(mechanic1, mechanic2));
+        entityManager.flush();
+
+        List<Manager> foundHopefully = managerRepository.findByFirstName("Post");
+        assertEquals(1, foundHopefully.size());
+        assertEquals("Post", foundHopefully.get(0).getFirstName());
+    }
+
+    @Test
+    public void testManagerFindByLastName() {
+        managerRepository.saveAll(Arrays.asList(manager1, manager2));
+        mechanicRepository.saveAll(Arrays.asList(mechanic1, mechanic2));
+        entityManager.flush();
+
+        List<Manager> foundHopefully = managerRepository.findByLastName("Malone");
+        assertEquals(2, foundHopefully.size());
+    }
+
+    @Test
+    public void testManagerFindByFirstNameAndLastName() {
+        managerRepository.saveAll(Arrays.asList(manager1, manager2));
+        mechanicRepository.saveAll(Arrays.asList(mechanic1, mechanic2));
+        entityManager.flush();
+
+        List<Manager> foundHopefully = managerRepository.findByFirstNameAndLastName("Message", "Malone");
+        assertEquals(1, foundHopefully.size());
+        assertEquals("Message", foundHopefully.get(0).getFirstName());
+        assertEquals("Malone", foundHopefully.get(0).getLastName());
+    }
+
+    @Test
+    public void testManagerFindByFirstNameAndSalary() {
+        managerRepository.saveAll(Arrays.asList(manager1, manager2));
+        mechanicRepository.saveAll(Arrays.asList(mechanic1, mechanic2));
+        entityManager.flush();
+
+        List<Manager> foundHopefully = managerRepository.findByFirstNameAndSalary("Message", 2500);
+        assertEquals(1, foundHopefully.size());
+        assertEquals("Message", foundHopefully.get(0).getFirstName());
+        assertEquals(2500, foundHopefully.get(0).getSalary());
+
+        foundHopefully = managerRepository.findByFirstNameAndSalary("Message", 2400);
+        assertEquals(0, foundHopefully.size());
+    }
+
+    @Test
+    public void testManagerFindAllBySalaryBiggerThan() {
+        managerRepository.saveAll(Arrays.asList(manager1, manager2));
+        mechanicRepository.saveAll(Arrays.asList(mechanic1, mechanic2));
+        entityManager.flush();
+
+        List<Manager> foundHopefully = managerRepository.findAllBySalaryBiggerThan(2000);
+        assertEquals(1, foundHopefully.size());
+        assertTrue(foundHopefully.get(0).getSalary() > 2000);
+    }
+
+    @Test
+    public void testManagerFindAllBySalarySmallerThan() {
+        managerRepository.saveAll(Arrays.asList(manager1, manager2));
+        mechanicRepository.saveAll(Arrays.asList(mechanic1, mechanic2));
+        entityManager.flush();
+
+        List<Manager> foundHopefully = managerRepository.findAllBySalarySmallerThan(2100);
+        assertEquals(1, foundHopefully.size());
+        assertTrue(foundHopefully.get(0).getSalary() < 2100);
     }
 }
