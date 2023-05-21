@@ -1,0 +1,1 @@
+INSERT INTO Repair_Shop (id, name, address) VALUES (100, 'Repairex', 'Kadrowa 75a, Warszawa'), (102, 'Samochodex', 'Kadrowa 76a, Warszawa');
