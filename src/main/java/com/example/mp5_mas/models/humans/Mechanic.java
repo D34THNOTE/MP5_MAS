@@ -31,9 +31,10 @@ public class Mechanic extends Worker {
     private RepairShop worksIn;
 
     @OneToMany(mappedBy = "mechanic", cascade = CascadeType.REMOVE) // This cascade option means that if we remove the Mechanic we also remove the associations
+    @Builder.Default
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
-    private Set<Repair> repairs;
+    private Set<Repair> repairs = new HashSet<>();
 
 
 }
