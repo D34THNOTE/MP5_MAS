@@ -1,17 +1,18 @@
 package com.example.mp5_mas.models;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import com.example.mp5_mas.models.humans.Manager;
+import com.example.mp5_mas.models.humans.Mechanic;
+import com.example.mp5_mas.models.humans.Worker;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
+
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -28,4 +29,16 @@ public class RepairShop {
     @NotBlank(message = "Address is required")
     @Size(min=3)
     private String address;
+
+    @OneToMany(mappedBy = "worksIn", fetch = FetchType.LAZY)
+    @Builder.Default
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private Set<Manager> managers = new HashSet<>();
+
+    @OneToMany(mappedBy = "worksIn", fetch = FetchType.LAZY)
+    @Builder.Default
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private Set<Mechanic> mechanics = new HashSet<>();
 }

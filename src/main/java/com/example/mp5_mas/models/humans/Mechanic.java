@@ -1,13 +1,9 @@
 package com.example.mp5_mas.models.humans;
 
-import jakarta.persistence.CollectionTable;
-import jakarta.persistence.ElementCollection;
-import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.example.mp5_mas.models.Repair;
+import com.example.mp5_mas.models.RepairShop;
+import jakarta.persistence.*;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.util.HashSet;
@@ -27,4 +23,17 @@ public class Mechanic extends Worker {
     @CollectionTable(name = "Specializations List", joinColumns = @JoinColumn(name="mechanic_id_worker"))
     @Builder.Default
     private Set<String> specialiationList = new HashSet<>();
+
+    @ManyToOne
+    @JoinColumn(name = "id_repairShop")
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private RepairShop worksIn;
+
+    @OneToMany(mappedBy = "mechanic", cascade = CascadeType.REMOVE) // This cascade option means that if we remove the Mechanic we also remove the associations
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private Set<Repair> repairs;
+
+
 }
